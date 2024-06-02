@@ -21,7 +21,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Toolbar,
   Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
@@ -58,14 +57,14 @@ function App() {
         setSubscriptions(res.data);
       })
       .catch((err) => {
-        alert('Opps! somthing went wrong!');
+        alert('Oops! Something went wrong!');
         setLoadingSubscriptionList(false);
       });
   };
 
   useEffect(() => {
     getAllSubscriptions();
-  }, []);
+  }, [status, startDate]);
 
   return (
     <Grid container spacing={2}>
@@ -75,60 +74,62 @@ function App() {
             Subscriptions
           </Typography>
           <Divider />
-          <Toolbar>
-            <Grid item xs={12}>
-              <Stack
-                direction='row'
-                display='flex'
-                justifyContent='space-between'
+          <Stack
+            direction='row'
+            justifyContent='space-between'
+            alignItems='center'
+            spacing={2}
+            m={1}
+          >
+            <Stack direction='row' spacing={2}>
+              <FormControl
+                variant='standard'
+                size='small'
+                sx={{ minWidth: 100 }}
               >
-                <Stack direction='row' spacing={2}>
-                  <FormControl variant='standard' sx={{ minWidth: 200 }}>
-                    <InputLabel id='status-dropdown-label'>
-                      Filter by status
-                    </InputLabel>
-                    <Select
-                      labelId='status-dropdown-label'
-                      id='status-dropdown-label'
-                      value={status}
-                      onChange={handleStatusChange}
-                      label=' Filter by status'
-                    >
-                      <MenuItem value='ALL'>
-                        <em>All</em>
-                      </MenuItem>
-                      <MenuItem value={'ACTIVE'}>Active</MenuItem>
-                      <MenuItem value={'EXPIRED'}>Expired</MenuItem>
-                      <MenuItem value={'CANCELED'}>Canceled</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <DatePicker
-                    label='Filter by start date'
-                    value={startDate}
-                    onChange={(newValue) => setStartDate(newValue)}
-                    slotProps={{
-                      textField: {
-                        size: 'small',
-                        variant: 'standard',
-                        sx: { minWidth: 200 },
-                      },
-                    }}
-                  />
-                </Stack>
-                <Button
-                  variant='outlined'
-                  size='small'
-                  minWidth={200}
-                  startIcon={<AddCircleOutlineRounded />}
-                  onClick={() => {
-                    setOpenAddDialog(true);
-                  }}
+                <InputLabel id='status-dropdown-label'>
+                  Filter by status
+                </InputLabel>
+                <Select
+                  labelId='status-dropdown-label'
+                  id='status-dropdown-label'
+                  value={status}
+                  onChange={handleStatusChange}
+                  label=' Filter by status'
                 >
-                  Add new
-                </Button>
-              </Stack>
-            </Grid>
-          </Toolbar>
+                  <MenuItem value='ALL'>
+                    <em>All</em>
+                  </MenuItem>
+                  <MenuItem value={'ACTIVE'}>Active</MenuItem>
+                  <MenuItem value={'EXPIRED'}>Expired</MenuItem>
+                  <MenuItem value={'CANCELED'}>Canceled</MenuItem>
+                </Select>
+              </FormControl>
+              <DatePicker
+                label='Filter by start date'
+                value={startDate}
+                onChange={(newValue) => setStartDate(newValue)}
+                slotProps={{
+                  textField: {
+                    size: 'small',
+                    variant: 'standard',
+                    sx: { minWidth: 100 },
+                  },
+                }}
+              />
+            </Stack>
+            <Button
+              variant='outlined'
+              size='small'
+              startIcon={<AddCircleOutlineRounded />}
+              onClick={() => {
+                setOpenAddDialog(true);
+              }}
+              sx={{ textTransform: 'none' }}
+            >
+              New
+            </Button>
+          </Stack>
           <SubscriptionFormDialog
             open={openAddDialog}
             setOpen={setOpenAddDialog}
@@ -138,20 +139,19 @@ function App() {
               <TableHead>
                 <TableRow>
                   <TableCell>ID</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell align='center'>Status</TableCell>
                   <TableCell>Next Payment Date</TableCell>
-                  <TableCell>Action</TableCell>
+                  <TableCell align='center'>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 <TableRow
-                  // key={row.name}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                   <TableCell component='th' scope='row'>
                     ID
                   </TableCell>
-                  <TableCell>
+                  <TableCell align='center'>
                     <Chip
                       label='Active'
                       color='success'
@@ -172,8 +172,8 @@ function App() {
                     />
                   </TableCell>
                   <TableCell>2020/12/12</TableCell>
-                  <TableCell>
-                    <Stack direction='row' spacing={2}>
+                  <TableCell align='center'>
+                    <Stack direction='row' spacing={2} justifyContent='center'>
                       <LoadingButton
                         size='small'
                         color='error'
