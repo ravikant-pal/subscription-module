@@ -203,7 +203,9 @@ function App() {
                         />
                       </TableCell>
                       <TableCell align='center'>
-                        {moment(sub.nextPaymentOn).format('ll')}
+                        {sub.status === 'ACTIVE'
+                          ? moment(sub.nextPaymentOn).format('ll')
+                          : '-'}
                       </TableCell>
                       <TableCell align='right'>
                         {sub.status === 'ACTIVE' && (
