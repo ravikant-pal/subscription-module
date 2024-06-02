@@ -138,6 +138,8 @@ function App() {
           <SubscriptionFormDialog
             open={openAddDialog}
             setOpen={setOpenAddDialog}
+            subscriptions={subscriptions}
+            setSubscriptions={setSubscriptions}
           />
           {loadingSubscriptionList ? (
             <Box

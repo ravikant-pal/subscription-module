@@ -1,6 +1,7 @@
 import { CheckCircleRounded } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
+  Alert,
   FormControl,
   InputLabel,
   MenuItem,
@@ -16,14 +17,20 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { DatePicker } from '@mui/x-date-pickers';
 import axios from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { API_URL } from '../utils/constants';
 
-const SubscriptionFormDialog = ({ open, setOpen }) => {
+const SubscriptionFormDialog = ({
+  open,
+  setOpen,
+  subscriptions,
+  setSubscriptions,
+}) => {
   const [hotelId, setHotelId] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [term, setTerm] = useState('MONTHLY');
   const [errors, setErrors] = useState({});
+  const [apiErrMsg, setApiErrMsg] = useState('');
   const [subscribing, setSubscribing] = useState(false);
   const handleClose = () => {
     setHotelId('');
@@ -43,9 +50,11 @@ const SubscriptionFormDialog = ({ open, setOpen }) => {
       return;
     }
 
+    const newDate = new Date(startDate);
+    newDate.setDate(newDate.getDate() + 1);
     const sub = {
       hotelId,
-      startDate,
+      startDate: newDate,
       term,
     };
 
@@ -55,18 +64,32 @@ const SubscriptionFormDialog = ({ open, setOpen }) => {
       .then((res) => {
         console.log(res);
         setSubscribing(false);
+        setSubscriptions([res.data, ...subscriptions]);
         handleClose();
       })
       .catch((err) => {
-        alert(err.response?.data?.message || 'Something went wrong');
+        setApiErrMsg(err.response.data || 'Opps! Somthing went wrong!');
         setSubscribing(false);
       });
   };
+
+  useEffect(() => {
+    if (apiErrMsg) {
+      const timeout = setTimeout(() => {
+        setApiErrMsg('');
+      }, 2000);
+
+      return () => clearTimeout(timeout);
+    }
+    return () => {};
+  }, [apiErrMsg]);
 
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Subscribe</DialogTitle>
       <DialogContent>
+        {apiErrMsg && <Alert severity='error'>{apiErrMsg}</Alert>}
+
         <DialogContentText>
           To subscribe to the Hotel, please enter below inforamtion.
         </DialogContentText>
@@ -91,6 +114,7 @@ const SubscriptionFormDialog = ({ open, setOpen }) => {
             name='startDate'
             id='startDate'
             disablePast
+            format='DD/MM/YYYY'
             value={startDate}
             onChange={(newValue) => setStartDate(newValue)}
             slotProps={{
