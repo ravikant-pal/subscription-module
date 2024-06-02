@@ -49,12 +49,9 @@ const SubscriptionFormDialog = ({
       setErrors(newErrors);
       return;
     }
-
-    const newDate = new Date(startDate);
-    newDate.setDate(newDate.getDate() + 1);
     const sub = {
       hotelId,
-      startDate: newDate,
+      startDate: new Date(startDate).toLocaleDateString(),
       term,
     };
 

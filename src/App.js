@@ -45,12 +45,14 @@ function App() {
   };
 
   const getAllSubscriptions = async () => {
-    let queryString = '';
-    if (status) {
-      queryString += `?status=${status}`;
+    let queryString = '?';
+    if (status && status !== 'ALL') {
+      queryString += `status=${status}`;
     }
     if (startDate) {
-      queryString += `${queryString ? '&' : ''}startDate=${startDate}`;
+      queryString += `${queryString ? '&' : ''}startDate=${new Date(
+        startDate
+      ).toLocaleDateString()}`;
     }
     setLoadingSubscriptionList(true);
     axios
