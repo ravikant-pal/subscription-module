@@ -1,5 +1,5 @@
 import {
-  AddRounded,
+  AddCircleOutlineRounded,
   CancelRounded,
   CheckCircleRounded,
 } from '@mui/icons-material';
@@ -25,17 +25,47 @@ import {
   Typography,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import SubscriptionFormDialog from './components/SubscriptionFormDialog';
+import { API_URL } from './utils/constants';
 
 function App() {
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState('ALL');
   const [openAddDialog, setOpenAddDialog] = useState(false);
-  const [filterDate, setFilterDate] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+  const [loadingSubscriptionList, setLoadingSubscriptionList] = useState(false);
+  const [subscriptions, setSubscriptions] = useState([]);
 
   const handleStatusChange = (e) => {
     console.log(e.target.value);
     setStatus(e.target.value);
   };
+
+  const getAllSubscriptions = async () => {
+    let queryString = '';
+    if (status) {
+      queryString += `?status=${status}`;
+    }
+    if (startDate) {
+      queryString += `${queryString ? '&' : ''}startDate=${startDate}`;
+    }
+    setLoadingSubscriptionList(true);
+    axios
+      .get(API_URL + queryString)
+      .then((res) => {
+        setLoadingSubscriptionList(false);
+        setSubscriptions(res.data);
+      })
+      .catch((err) => {
+        alert('Opps! somthing went wrong!');
+        setLoadingSubscriptionList(false);
+      });
+  };
+
+  useEffect(() => {
+    getAllSubscriptions();
+  }, []);
 
   return (
     <Grid container spacing={2}>
@@ -46,53 +76,50 @@ function App() {
           </Typography>
           <Divider />
           <Toolbar>
-            <Grid item xs={12} sm={12} md={6}>
+            <Grid item xs={12}>
               <Stack
                 direction='row'
-                spacing={1}
                 display='flex'
-                justifyContent='space-around'
+                justifyContent='space-between'
               >
-                <FormControl fullWidth>
-                  <InputLabel id='status-dropdown-label'>
-                    Filter by status
-                  </InputLabel>
-                  <Select
-                    labelId='status-dropdown-label'
-                    id='status-dropdown'
-                    value={status}
-                    label='Filter by status'
-                    size='small'
-                    onChange={handleStatusChange}
-                  >
-                    <MenuItem value={'ACTIVE'}>Active</MenuItem>
-                    <MenuItem value={'EXPIRED'}>Expired</MenuItem>
-                    <MenuItem value={'CANCELED'}>Canceled</MenuItem>
-                  </Select>
-                </FormControl>
-                <DatePicker
-                  label='Filter by start date'
-                  value={filterDate}
-                  onChange={(newValue) => setFilterDate(newValue)}
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      size: 'small',
-                      // sx: {
-                      //   '& .MuiOutlinedInput-root': {
-                      //     borderRadius: 5,
-                      //   },
-                      //   mt: 1,
-                      // },
-                    },
-                  }}
-                />
-
+                <Stack direction='row' spacing={2}>
+                  <FormControl variant='standard' sx={{ minWidth: 200 }}>
+                    <InputLabel id='status-dropdown-label'>
+                      Filter by status
+                    </InputLabel>
+                    <Select
+                      labelId='status-dropdown-label'
+                      id='status-dropdown-label'
+                      value={status}
+                      onChange={handleStatusChange}
+                      label=' Filter by status'
+                    >
+                      <MenuItem value='ALL'>
+                        <em>All</em>
+                      </MenuItem>
+                      <MenuItem value={'ACTIVE'}>Active</MenuItem>
+                      <MenuItem value={'EXPIRED'}>Expired</MenuItem>
+                      <MenuItem value={'CANCELED'}>Canceled</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <DatePicker
+                    label='Filter by start date'
+                    value={startDate}
+                    onChange={(newValue) => setStartDate(newValue)}
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        variant: 'standard',
+                        sx: { minWidth: 200 },
+                      },
+                    }}
+                  />
+                </Stack>
                 <Button
                   variant='outlined'
                   size='small'
-                  fullWidth
-                  startIcon={<AddRounded />}
+                  minWidth={200}
+                  startIcon={<AddCircleOutlineRounded />}
                   onClick={() => {
                     setOpenAddDialog(true);
                   }}
@@ -102,6 +129,10 @@ function App() {
               </Stack>
             </Grid>
           </Toolbar>
+          <SubscriptionFormDialog
+            open={openAddDialog}
+            setOpen={setOpenAddDialog}
+          />
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }}>
               <TableHead>
