@@ -5,8 +5,10 @@ import {
 } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import {
+  Box,
   Button,
   Chip,
+  CircularProgress,
   Divider,
   FormControl,
   Grid,
@@ -25,6 +27,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers';
 import axios from 'axios';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import SubscriptionFormDialog from './components/SubscriptionFormDialog';
 import { API_URL } from './utils/constants';
@@ -108,8 +111,10 @@ function App() {
               <DatePicker
                 label='Filter by start date'
                 value={startDate}
+                format='DD/MM/YYYY'
                 onChange={(newValue) => setStartDate(newValue)}
                 slotProps={{
+                  field: { clearable: true, onClear: () => setStartDate(null) },
                   textField: {
                     size: 'small',
                     variant: 'standard',
@@ -134,70 +139,84 @@ function App() {
             open={openAddDialog}
             setOpen={setOpenAddDialog}
           />
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell>ID</TableCell>
-                  <TableCell align='center'>Status</TableCell>
-                  <TableCell>Next Payment Date</TableCell>
-                  <TableCell align='center'>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell component='th' scope='row'>
-                    ID
-                  </TableCell>
-                  <TableCell align='center'>
-                    <Chip
-                      label='Active'
-                      color='success'
-                      variant='outlined'
-                      size='small'
-                    />
-                    <Chip
-                      label='Canceled'
-                      color='error'
-                      variant='outlined'
-                      size='small'
-                    />
-                    <Chip
-                      label='Expired'
-                      color='default'
-                      variant='outlined'
-                      size='small'
-                    />
-                  </TableCell>
-                  <TableCell>2020/12/12</TableCell>
-                  <TableCell align='center'>
-                    <Stack direction='row' spacing={2} justifyContent='center'>
-                      <LoadingButton
-                        size='small'
-                        color='error'
-                        variant='outlined'
-                        sx={{ textTransform: 'none' }}
-                        startIcon={<CancelRounded />}
-                      >
-                        Cancel
-                      </LoadingButton>
-                      <LoadingButton
-                        size='small'
-                        color='success'
-                        variant='outlined'
-                        sx={{ textTransform: 'none' }}
-                        startIcon={<CheckCircleRounded />}
-                      >
-                        Resubscribe
-                      </LoadingButton>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer>
+          {loadingSubscriptionList ? (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100px',
+              }}
+            >
+              <CircularProgress color='info' size={20} />
+            </Box>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 400 }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell align='center'>Status</TableCell>
+                    <TableCell align='center'>Next Payment Date</TableCell>
+                    <TableCell align='right'>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {subscriptions.map((sub) => (
+                    <TableRow
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      key={sub.id}
+                    >
+                      <TableCell component='th' scope='row'>
+                        {sub.id}
+                      </TableCell>
+                      <TableCell align='center'>
+                        <Chip
+                          label={sub.status}
+                          color={
+                            sub.status === 'ACTIVE'
+                              ? 'success'
+                              : sub.status === 'CANCELED'
+                              ? 'error'
+                              : 'default'
+                          }
+                          variant='outlined'
+                          size='small'
+                        />
+                      </TableCell>
+                      <TableCell align='center'>
+                        {moment(sub.nextPaymentOn).format('ll')}
+                      </TableCell>
+                      <TableCell align='right'>
+                        {sub.status === 'ACTIVE' && (
+                          <LoadingButton
+                            size='small'
+                            color='error'
+                            variant='outlined'
+                            sx={{ textTransform: 'none' }}
+                            startIcon={<CancelRounded />}
+                          >
+                            Cancel
+                          </LoadingButton>
+                        )}
+                        {sub.status === 'CANCELED' && (
+                          <LoadingButton
+                            size='small'
+                            color='success'
+                            variant='outlined'
+                            sx={{ textTransform: 'none' }}
+                            startIcon={<CheckCircleRounded />}
+                          >
+                            Resubscribe
+                          </LoadingButton>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </Paper>
       </Grid>
     </Grid>
