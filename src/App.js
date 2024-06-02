@@ -37,12 +37,9 @@ function App() {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [startDate, setStartDate] = useState(null);
   const [loadingSubscriptionList, setLoadingSubscriptionList] = useState(false);
+  const [cancelingSubscription, setCancelingSubscription] = useState(false);
+  const [resubscribing, setResubscribing] = useState(false);
   const [subscriptions, setSubscriptions] = useState([]);
-
-  const handleStatusChange = (e) => {
-    console.log(e.target.value);
-    setStatus(e.target.value);
-  };
 
   const getAllSubscriptions = async () => {
     let queryString = '?';
@@ -64,6 +61,23 @@ function App() {
       .catch((err) => {
         alert('Oops! Something went wrong!');
         setLoadingSubscriptionList(false);
+      });
+  };
+
+  const handleStatusChange = async (id, status) => {
+    if (status === 'CANCELED') setCancelingSubscription(true);
+    if (status === 'ACTIVE') setResubscribing(true);
+    axios
+      .put(API_URL + `/${id}?status=${status}`)
+      .then((res) => {
+        if (status === 'CANCELED') setCancelingSubscription(false);
+        if (status === 'ACTIVE') setResubscribing(false);
+        getAllSubscriptions();
+      })
+      .catch((err) => {
+        alert('Oops! Something went wrong!');
+        if (status === 'CANCELED') setCancelingSubscription(false);
+        if (status === 'ACTIVE') setResubscribing(false);
       });
   };
 
@@ -99,7 +113,7 @@ function App() {
                   labelId='status-dropdown-label'
                   id='status-dropdown-label'
                   value={status}
-                  onChange={handleStatusChange}
+                  onChange={(e) => setStatus(e.target.value)}
                   label=' Filter by status'
                 >
                   <MenuItem value='ALL'>
@@ -198,6 +212,9 @@ function App() {
                             color='error'
                             variant='outlined'
                             sx={{ textTransform: 'none' }}
+                            onClick={() =>
+                              handleStatusChange(sub.id, 'CANCELED')
+                            }
                             startIcon={<CancelRounded />}
                           >
                             Cancel
@@ -210,6 +227,7 @@ function App() {
                             variant='outlined'
                             sx={{ textTransform: 'none' }}
                             startIcon={<CheckCircleRounded />}
+                            onClick={() => handleStatusChange(sub.id, 'ACTIVE')}
                           >
                             Resubscribe
                           </LoadingButton>
