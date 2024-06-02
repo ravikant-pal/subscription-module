@@ -17,6 +17,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import { DatePicker } from '@mui/x-date-pickers';
 import axios from 'axios';
+import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { API_URL } from '../utils/constants';
 
@@ -27,7 +28,7 @@ const SubscriptionFormDialog = ({
   setSubscriptions,
 }) => {
   const [hotelId, setHotelId] = useState('');
-  const [startDate, setStartDate] = useState(null);
+  const [startDate, setStartDate] = useState(moment());
   const [term, setTerm] = useState('MONTHLY');
   const [errors, setErrors] = useState({});
   const [apiErrMsg, setApiErrMsg] = useState('');
