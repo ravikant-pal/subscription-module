@@ -213,6 +213,7 @@ function App() {
                             size='small'
                             color='error'
                             variant='outlined'
+                            loading={cancelingSubscription}
                             sx={{ textTransform: 'none' }}
                             onClick={() =>
                               handleStatusChange(sub.id, 'CANCELED')
@@ -227,6 +228,7 @@ function App() {
                             size='small'
                             color='success'
                             variant='outlined'
+                            loading={resubscribing}
                             sx={{ textTransform: 'none' }}
                             startIcon={<CheckCircleRounded />}
                             onClick={() => handleStatusChange(sub.id, 'ACTIVE')}
