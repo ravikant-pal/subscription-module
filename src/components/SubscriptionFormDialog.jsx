@@ -35,7 +35,7 @@ const SubscriptionFormDialog = ({
   const [subscribing, setSubscribing] = useState(false);
   const handleClose = () => {
     setHotelId('');
-    setStartDate(null);
+    setStartDate(moment());
     setTerm('MONTHLY');
     setErrors({});
     setOpen(false);
@@ -52,7 +52,7 @@ const SubscriptionFormDialog = ({
     }
     const sub = {
       hotelId,
-      startDate: new Date(startDate).toLocaleDateString(),
+      startDate,
       term,
     };
 
