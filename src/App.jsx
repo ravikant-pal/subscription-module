@@ -106,15 +106,13 @@ function App() {
                 size='small'
                 sx={{ minWidth: 100 }}
               >
-                <InputLabel id='status-dropdown-label'>
-                  Filter by status
-                </InputLabel>
+                <InputLabel id='status-dropdown-label'>Status</InputLabel>
                 <Select
                   labelId='status-dropdown-label'
                   id='status-dropdown-label'
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  label=' Filter by status'
+                  label='Status'
                 >
                   <MenuItem value='ALL'>
                     <em>All</em>
@@ -125,9 +123,10 @@ function App() {
                 </Select>
               </FormControl>
               <DatePicker
-                label='Filter by start date'
+                label='Start month'
                 value={startDate}
-                format='DD/MM/YYYY'
+                format='MMMM'
+                views={['month']}
                 onChange={(newValue) => setStartDate(newValue)}
                 slotProps={{
                   field: { clearable: true, onClear: () => setStartDate(null) },
@@ -189,18 +188,27 @@ function App() {
                         {sub.id}
                       </TableCell>
                       <TableCell align='center'>
-                        <Chip
-                          label={sub.status}
-                          color={
-                            sub.status === 'ACTIVE'
-                              ? 'success'
-                              : sub.status === 'CANCELED'
-                              ? 'error'
-                              : 'default'
-                          }
-                          variant='outlined'
-                          size='small'
-                        />
+                        {sub.endDate && sub.endDate <= new Date() ? (
+                          <Chip
+                            label='EXPIRED'
+                            color='default'
+                            variant='outlined'
+                            size='small'
+                          />
+                        ) : (
+                          <Chip
+                            label={sub.status}
+                            color={
+                              sub.status === 'ACTIVE'
+                                ? 'success'
+                                : sub.status === 'CANCELED'
+                                ? 'error'
+                                : 'default'
+                            }
+                            variant='outlined'
+                            size='small'
+                          />
+                        )}
                       </TableCell>
                       <TableCell align='center'>
                         {sub.status === 'ACTIVE'
